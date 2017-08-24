@@ -210,7 +210,7 @@ An element specifying REST API resource inside <rest-api>.
 
             constructor() {
                 super();
-                this._observer = Polymer.dom(this).observeNodes(this._effectiveChildrenChanged);
+                this._observer = new Polymer.FlattenedNodesObserver(this, this._effectiveChildrenChanged);
                 this._skipAutoSave = true;
                 this._initCollection(this.collection);
             }
@@ -688,7 +688,11 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             get _transportElement() {
-                return this.queryEffectiveChildren('[rest-api-transport]') || this.parentElement._transportElement;
+//                return Polymer.FlattenedNodesObserver.getFlattenedNodes(this).filter(n => {
+//                    return n.nodeType === Node.ELEMENT_NODE;
+//                });
+//                return this.queryEffectiveChildren('[rest-api-transport]') || this.parentElement._transportElement;
+                return this.parentElement._transportElement;
             }
 
             _request(method, url, data, supplementalParams) {
