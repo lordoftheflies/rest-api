@@ -106,7 +106,9 @@ An element specifying REST API resource inside <rest-api>.
                     collection: {
                         type: Array,
                         notify: true,
-                        value: []
+                        value: function () {
+                            return [];
+                        }
                     },
 
                     /**
@@ -210,6 +212,7 @@ An element specifying REST API resource inside <rest-api>.
                 super();
                 this._observer = Polymer.dom(this).observeNodes(this._effectiveChildrenChanged);
                 this._skipAutoSave = true;
+                this._initCollection(this.collection);
             }
 
             ready() {
@@ -721,6 +724,7 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             _autoFetch(url, collection, paramsField) {
+
                 if (!this.noAutoFetch && !this._skipAutoFetch) {
                     if (this._autoFetchRequest) {
                         this._autoFetchRequest.abort();
