@@ -212,16 +212,18 @@ An element specifying REST API resource inside <rest-api>.
              * @event error
              */
 
-            created() {
+            constructor() {
+                super();
                 this._observer = Polymer.dom(this).observeNodes(this._effectiveChildrenChanged);
                 this._skipAutoSave = true;
             }
 
             ready() {
+                super.ready();
                 this._skipAutoSave = false;
             }
 
-            attached() {
+            connectedCallback () {
                 var inheritedProperties = [
                     'idAttribute',
                     'offsetParamName',
@@ -246,7 +248,7 @@ An element specifying REST API resource inside <rest-api>.
                 this.parentUrl = this.parentElement.url; // triggers _autoFetch, please keep it last here
             }
 
-            detached() {
+            disconnectedCallback() {
                 this.unlisten(this.parentElement, 'selected-item-changed', '_parentSelectedItemChanged');
             }
 
