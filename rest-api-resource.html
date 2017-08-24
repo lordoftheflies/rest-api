@@ -106,7 +106,6 @@ An element specifying REST API resource inside <rest-api>.
                     collection: {
                         type: Array,
                         notify: true,
-                        observer: '_initCollection',
                         value: function () {
                             return [];
                         }
@@ -167,8 +166,7 @@ An element specifying REST API resource inside <rest-api>.
                      */
                     selectedItem: {
                         type: Object,
-                        notify: true,
-                        observer: '_selectedItemChanged'
+                        notify: true
                     },
 
                     /**
@@ -176,8 +174,7 @@ An element specifying REST API resource inside <rest-api>.
                      */
                     selectedItemId: {
                         type: String,
-                        notify: true,
-                        observer: '_selectedItemIdChanged'
+                        notify: true
                     },
 
                     /**
@@ -192,7 +189,6 @@ An element specifying REST API resource inside <rest-api>.
                     }
                 }
             }
-
 
             /**
              * Fired when a request is sent.
@@ -256,7 +252,10 @@ An element specifying REST API resource inside <rest-api>.
                 return [
                     '_collectionChanged(collection.*)',
                     '_autoFetch(url, collection, params.*)',
-                    '_autoFetch(fetchSingle)'
+                    '_autoFetch(fetchSingle)',
+                    '_selectedItemChanged(selectedItem)',
+                    '_selectedItemIdChanged(selectedItemId)',
+                    '_initCollection(collection)'
                 ]
             }
 
