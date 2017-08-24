@@ -250,12 +250,12 @@ An element specifying REST API resource inside <rest-api>.
 
             static get observers() {
                 return [
-                    '_collectionChanged(collection.*)',
-                    '_autoFetch(url, collection, params.*)',
-                    '_autoFetch(fetchSingle)',
+                    '_initCollection(collection)',
                     '_selectedItemChanged(selectedItem)',
                     '_selectedItemIdChanged(selectedItemId)',
-                    '_initCollection(collection)'
+                    '_collectionChanged(collection.*)',
+                    '_autoFetch(url, collection, params.*)',
+                    '_autoFetch(fetchSingle)'
                 ]
             }
 
