@@ -548,7 +548,7 @@ An element specifying REST API resource inside <rest-api>.
 
             get _collectionMethods() {
                 return {
-                    fetch: function () {
+                    fetch() {
 
                         if (this.fetchSingle) {
                             return this.collection.fetchItem(this.selectedItemId);
