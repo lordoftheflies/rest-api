@@ -255,7 +255,7 @@ An element specifying REST API resource inside <rest-api>.
                     '_selectedItemIdChanged(selectedItemId)',
                     '_collectionChanged(collection.*)',
                     '_autoFetch(url, collection, params.*)',
-                    '_autoFetch(fetchSingle)'
+                    '_autoFetchSingle(fetchSingle)'
                 ]
             }
 
@@ -722,7 +722,22 @@ An element specifying REST API resource inside <rest-api>.
                 return transport.generateRequest();
             }
 
-            _autoFetch() {
+            _autoFetch(url, collection, paramsField) {
+                if (!this.noAutoFetch && !this._skipAutoFetch) {
+                    if (this._autoFetchRequest) {
+                        this._autoFetchRequest.abort();
+                        delete this._autoFetchRequest;
+                    }
+                    this._autoFetchRequest = this.collection.fetch();
+                    if (this._autoFetchRequest) {
+                        this._autoFetchRequest.completes.then((function () {
+                            delete this._autoFetchRequest;
+                        }).bind(this));
+                    }
+                }
+            }
+
+            _autoFetchSingle(fetchSingle) {
                 if (!this.noAutoFetch && !this._skipAutoFetch) {
                     if (this._autoFetchRequest) {
                         this._autoFetchRequest.abort();
