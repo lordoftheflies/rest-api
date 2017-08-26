@@ -459,7 +459,11 @@ An element specifying REST API resource inside <rest-api>.
 
             get _polymerCollection() {
 //                return Polymer.Collection.get(this.collection);
-                return this.get('collection');
+                let collection = this.get('collection');
+                collection.getKey= function(item) {
+                    return item[this.get('idAttribute')];
+                }
+                return collection;
             }
 
             _spliceCollection(index, count, items) {
