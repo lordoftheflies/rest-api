@@ -31,7 +31,7 @@ An element specifying REST API resource inside <rest-api>.
          * @polymer
          * @extends HTMLElement
          */
-        class RestApiResorce extends Polymer.Element {
+        class RestApiResorce extends Polymer.LegacyElementMixin(Polymer.Element) {
 
             static get is() {
                 return 'rest-api-resource';
@@ -106,7 +106,6 @@ An element specifying REST API resource inside <rest-api>.
                     collection: {
                         type: Array,
                         notify: true,
-                        observer: '_initCollection',
                         value: function () {
                             return [];
                         }
@@ -167,8 +166,7 @@ An element specifying REST API resource inside <rest-api>.
                      */
                     selectedItem: {
                         type: Object,
-                        notify: true,
-                        observer: '_selectedItemChanged'
+                        notify: true
                     },
 
                     /**
@@ -176,8 +174,7 @@ An element specifying REST API resource inside <rest-api>.
                      */
                     selectedItemId: {
                         type: String,
-                        notify: true,
-                        observer: '_selectedItemIdChanged'
+                        notify: true
                     },
 
                     /**
@@ -192,7 +189,6 @@ An element specifying REST API resource inside <rest-api>.
                     }
                 }
             }
-
 
             /**
              * Fired when a request is sent.
@@ -212,16 +208,19 @@ An element specifying REST API resource inside <rest-api>.
              * @event error
              */
 
-            created() {
-                this._observer = Polymer.dom(this).observeNodes(this._effectiveChildrenChanged);
+            constructor() {
+                super();
+                this._observer = new Polymer.FlattenedNodesObserver(this, this._effectiveChildrenChanged);
                 this._skipAutoSave = true;
+                this._initCollection(this.collection);
             }
 
             ready() {
+                super.ready();
                 this._skipAutoSave = false;
             }
 
-            attached() {
+            connectedCallback () {
                 var inheritedProperties = [
                     'idAttribute',
                     'offsetParamName',
@@ -246,15 +245,18 @@ An element specifying REST API resource inside <rest-api>.
                 this.parentUrl = this.parentElement.url; // triggers _autoFetch, please keep it last here
             }
 
-            detached() {
+            disconnectedCallback() {
                 this.unlisten(this.parentElement, 'selected-item-changed', '_parentSelectedItemChanged');
             }
 
             static get observers() {
                 return [
+                    '_initCollection(collection)',
+                    '_selectedItemChanged(selectedItem)',
+                    '_selectedItemIdChanged(selectedItemId)',
                     '_collectionChanged(collection.*)',
                     '_autoFetch(url, collection, params.*)',
-                    '_autoFetch(fetchSingle)'
+                    '_autoFetchSingle(fetchSingle)'
                 ]
             }
 
@@ -267,17 +269,20 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             _computeUrl(parentUrl, parentItem, name) {
-                var url = parentUrl.replace(/\/$/, '');
+                if (parentUrl) {
 
-                if (this._isNested()) {
-                    if (parentItem === null) {
-                        return undefined;
+                    var url = parentUrl.replace(/\/$/, '');
+
+                    if (this._isNested()) {
+                        if (parentItem === null) {
+                            return undefined;
+                        }
+
+                        url += '/' + this._getParentItemId(parentItem);
                     }
 
-                    url += '/' + this._getParentItemId(parentItem);
+                    return url + '/' + name;
                 }
-
-                return url + '/' + name;
             }
 
             _selectedItemIdChanged(selectedItemId) {
@@ -453,7 +458,13 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             get _polymerCollection() {
-                return Polymer.Collection.get(this.collection);
+//                return Polymer.Collection.get(this.collection);
+                let collection = this.get('collection');
+                let self = this;
+                collection.getKey= function(item) {
+                    return item[self.get('idAttribute')];
+                }
+                return collection;
             }
 
             _spliceCollection(index, count, items) {
@@ -546,7 +557,7 @@ An element specifying REST API resource inside <rest-api>.
 
             get _collectionMethods() {
                 return {
-                    fetch: function () {
+                    fetch() {
 
                         if (this.fetchSingle) {
                             return this.collection.fetchItem(this.selectedItemId);
@@ -686,7 +697,11 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             get _transportElement() {
-                return this.queryEffectiveChildren('[rest-api-transport]') || this.parentElement._transportElement;
+//                return Polymer.FlattenedNodesObserver.getFlattenedNodes(this).filter(n => {
+//                    return n.nodeType === Node.ELEMENT_NODE;
+//                });
+//                return this.queryEffectiveChildren('[rest-api-transport]') || this.parentElement._transportElement;
+                return this.parentElement._transportElement;
             }
 
             _request(method, url, data, supplementalParams) {
@@ -721,7 +736,23 @@ An element specifying REST API resource inside <rest-api>.
                 return transport.generateRequest();
             }
 
-            _autoFetch() {
+            _autoFetch(url, collection, paramsField) {
+
+                if (!this.noAutoFetch && !this._skipAutoFetch) {
+                    if (this._autoFetchRequest) {
+                        this._autoFetchRequest.abort();
+                        delete this._autoFetchRequest;
+                    }
+                    this._autoFetchRequest = this.collection.fetch();
+                    if (this._autoFetchRequest) {
+                        this._autoFetchRequest.completes.then((function () {
+                            delete this._autoFetchRequest;
+                        }).bind(this));
+                    }
+                }
+            }
+
+            _autoFetchSingle(fetchSingle) {
                 if (!this.noAutoFetch && !this._skipAutoFetch) {
                     if (this._autoFetchRequest) {
                         this._autoFetchRequest.abort();

@@ -157,7 +157,11 @@ API documentation page for the custom transport elements API.
 
 
             get _transportElement() {
-                return this.queryEffectiveChildren('[rest-api-transport]') || this.$.ajax;
+                return this.$.ajax;
+//                return Polymer.FlattenedNodesObserver.getFlattenedNodes(this).filter(n => {
+//                    return n.nodeType === Node.ELEMENT_NODE;
+//                });
+//                return this.queryEffectiveChildren('[rest-api-transport]') || this.$.ajax;
             }
 
         }
