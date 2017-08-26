@@ -458,7 +458,8 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             get _polymerCollection() {
-                return Polymer.Collection.get(this.collection);
+//                return Polymer.Collection.get(this.collection);
+                return this.get('collection');
             }
 
             _spliceCollection(index, count, items) {
