@@ -31,7 +31,7 @@ An element specifying REST API resource inside <rest-api>.
          * @polymer
          * @extends HTMLElement
          */
-        class RestApiResorce extends Polymer.Element {
+        class RestApiResorce extends Polymer.LegacyElementMixin(Polymer.Element) {
 
             static get is() {
                 return 'rest-api-resource';
