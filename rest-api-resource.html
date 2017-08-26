@@ -269,17 +269,20 @@ An element specifying REST API resource inside <rest-api>.
             }
 
             _computeUrl(parentUrl, parentItem, name) {
-                var url = parentUrl.replace(/\/$/, '');
+                if (parentUrl) {
 
-                if (this._isNested()) {
-                    if (parentItem === null) {
-                        return undefined;
+                    var url = parentUrl.replace(/\/$/, '');
+
+                    if (this._isNested()) {
+                        if (parentItem === null) {
+                            return undefined;
+                        }
+
+                        url += '/' + this._getParentItemId(parentItem);
                     }
 
-                    url += '/' + this._getParentItemId(parentItem);
+                    return url + '/' + name;
                 }
-
-                return url + '/' + name;
             }
 
             _selectedItemIdChanged(selectedItemId) {
