@@ -460,8 +460,9 @@ An element specifying REST API resource inside <rest-api>.
             get _polymerCollection() {
 //                return Polymer.Collection.get(this.collection);
                 let collection = this.get('collection');
+                let self = this;
                 collection.getKey= function(item) {
-                    return item[this.get('idAttribute')];
+                    return item[self.get('idAttribute')];
                 }
                 return collection;
             }
